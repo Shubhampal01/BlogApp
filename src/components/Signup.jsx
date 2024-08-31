@@ -2,10 +2,8 @@ import React,{useState} from 'react'
 import authService from '../appwrite/auth'
 import {Link, useNavigate} from 'react-router-dom'
 import authSlice, {login} from '../store/authSlice'
-import Button from './Button'
 import {Button,Input, Logo} from './index'
 import { useDispatch } from 'react-redux'
-import {useDispatch} from 'react-redux'
 import {useForm} from 'react-hook-form'
 
 function Signup() {
@@ -51,7 +49,7 @@ function Signup() {
         </p>
         {error && <p className='text-red-600 mt-8 text-center'>
             {error}</p>}
-        <form action={handleSubmit(create)}>
+        <form onSubmit={handleSubmit(create)}>
             <div className="space-y-5">
                 <Input
                     label = "Full Name: "
