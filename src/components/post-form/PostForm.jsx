@@ -11,7 +11,7 @@ function PostForm({post}) {
             title:post?.title||'',
             slug:post?.slug||'',
             content:post?.content||'',
-            status:post?.status||'',
+            status:post?.status||'active',
         }
     });
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ function PostForm({post}) {
 
     const submit = async (data)=>{
         if(post){
-            const file = data.image[0]?appwriteService.fileUpload(data.image[0]):null
+            const file = data.image[0]?await appwriteService.fileUpload(data.image[0]):null
             if(file){
                 appwriteService.fileDelete(post.featuredImage)
             }
@@ -27,9 +27,9 @@ function PostForm({post}) {
                 post.$id,{
                     ...data,
                     featuredImage: file ? file.$id : undefined,
-                })
+                });
             if(dbPost){
-                navigate(`/post${dbPost.$id}`)
+                navigate(`/post/${dbPost.$id}`)
             }
         }
         else{
@@ -53,20 +53,21 @@ function PostForm({post}) {
             return value
             .trim()
             .toLowerCase()
-            .replace(/^[a-zA-Z/d/s]+/g,'-')
-            .replace(/\s/g,'-')
-        return ''
+            .replace(/[^a-zA-Z\d\s]+/g, "-")
+            .replace(/\s/g, "-");
+        return "";
     },[])
 
     useEffect(()=>{
         const subscription = watch((value,{name})=>{
             if(name=='title'){
-                setValue(slug,slugTransform(value.title,{shouldValidate:true}))
+                setValue("slug",slugTransform(value.title,{shouldValidate:true}))
             }
-        })
+        });
+        return ()=>subscription.unsubscribe();
     },[watch, slugTransform,setValue])
   return (
-    <form action={handleSubmit(submit)} className="flex flex-wrap">
+    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
         <div className="w-2/3 px-2">
             <Input
                 label = "Title: "
@@ -97,7 +98,7 @@ function PostForm({post}) {
             <Input
                 label="Featured Image :"
                 type="file"
-                classname="mb-4"
+                className="mb-4"
                 accept="image/png image/jpg image/jpeg image/gif"
                 {...register("image",{
                     required:!post
